@@ -39,7 +39,7 @@ Built with **React, Tailwind, Zustand, Vite, and Puter.js**, it features seamles
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/clay_egg/resumind.git
+git clone https://github.com/clay_egg/ai-resume-analyzer.git
 cd resumind
 
 # Install dependencies
