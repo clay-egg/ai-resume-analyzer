@@ -327,7 +327,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
         >;
     };
 
-    const feedback = async (path: string, message: string) => {
+    const feedback = async (resumeText: string, message: string) => {
         const puter = getPuter();
         if (!puter) {
             setError("Puter.js not available");
@@ -335,22 +335,8 @@ export const usePuterStore = create<PuterStore>((set, get) => {
         }
 
         return puter.ai.chat(
-            [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "file",
-                            puter_path: path,
-                        },
-                        {
-                            type: "text",
-                            text: message,
-                        },
-                    ],
-                },
-            ],
-            { model: "claude-3-7-sonnet" }
+            `${message}\n\nResume content:\n${resumeText}`,
+            { temperature: 0.2 }
         ) as Promise<AIResponse | undefined>;
     };
 

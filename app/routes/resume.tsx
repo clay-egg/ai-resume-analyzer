@@ -5,6 +5,23 @@ import Summary from "~/components/Summary";
 import Details from "~/components/Details";
 import ATS from "~/components/ATS";
 
+const isFeedback = (value: unknown): value is Feedback => {
+    if (!value || typeof value !== 'object') return false;
+
+    const feedback = value as Partial<Feedback>;
+    return typeof feedback.overallScore === 'number'
+        && typeof feedback.ATS?.score === 'number'
+        && Array.isArray(feedback.ATS.tips)
+        && typeof feedback.toneAndStyle?.score === 'number'
+        && Array.isArray(feedback.toneAndStyle.tips)
+        && typeof feedback.content?.score === 'number'
+        && Array.isArray(feedback.content.tips)
+        && typeof feedback.structure?.score === 'number'
+        && Array.isArray(feedback.structure.tips)
+        && typeof feedback.skills?.score === 'number'
+        && Array.isArray(feedback.skills.tips);
+}
+
 export const meta = () => ([
     { title: 'Resumind | Review' },
     { name: 'description', content: 'Detailed overview of your resume' },
@@ -16,6 +33,7 @@ const Resume = () => {
     const [imageUrl, setImageUrl] = useState('');
     const [resumeUrl, setResumeUrl] = useState('');
     const [feedback, setFeedback] = useState<Feedback | null>(null);
+    const [feedbackError, setFeedbackError] = useState('');
     const navigate = useNavigate();
 
     useEffect(()=>{
@@ -42,7 +60,16 @@ const Resume = () => {
             const imageUrl = URL.createObjectURL(imageBlop);
             setImageUrl(imageUrl);
 
-            setFeedback(data.feedback);
+            if (isFeedback(data.feedback)) {
+                setFeedback(data.feedback);
+                setFeedbackError('');
+            } else {
+                const message = typeof data.feedback?.error === 'string'
+                    ? data.feedback.error
+                    : 'The saved AI feedback is incomplete. Please upload and analyze the resume again.';
+                setFeedback(null);
+                setFeedbackError(message);
+            }
             console.log({resumeUrl, imageUrl, feedback: data.feedback});
         }
 
@@ -74,7 +101,11 @@ const Resume = () => {
                 </section>
                 <section className="feedback-section">
                     <h2 className="text-4xl !text-black font-bold">Resume Review</h2>
-                    {feedback ? (
+                    {feedbackError ? (
+                        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6">
+                            {feedbackError}
+                        </div>
+                    ) : feedback ? (
                         <div className="flex flex-col gap-8 animate-in fade-in druation-1000">
                             <Summary feedback={feedback} />
                             <ATS score={feedback.ATS.score || 0} suggestions={feedback.ATS.tips || [] } />
