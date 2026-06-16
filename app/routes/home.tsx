@@ -39,11 +39,14 @@ export default function Home() {
         loadResumes()
     }, []);
 
-    return <main className="bg-[url('/images/bg-main.svg')] bg-cover">
+    return <main className="bg-[url('/images/bg-main.svg')] bg-cover bg-fixed">
         <Navbar />
 
         <section className="main-section">
-            <div className="page-heading py-16">
+            <div className="page-heading">
+                <p className="rounded-full border border-indigo-100 bg-white/80 px-4 py-2 text-sm font-semibold text-indigo-700 shadow-sm">
+                    AI resume review dashboard
+                </p>
                 <h1>Track Your Applications & Resume Ratings</h1>
                 {!loadingResumes && resumes?.length === 0 ? (
                     <h2>No resumes found. Upload your first resume to get feedback.</h2>
@@ -52,7 +55,7 @@ export default function Home() {
                 )}
             </div>
             {loadingResumes && (
-                <div className="flex flex-col items-center justify-center">
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white/85 p-8 shadow-sm">
                     <img src="/images/resume-scan-2.gif" className="w-[200px]" />
                 </div>
             )}
@@ -66,7 +69,8 @@ export default function Home() {
             )}
 
             {!loadingResumes && resumes?.length === 0 && (
-                <div className="flex flex-col items-center justify-center mt-10 gap-4">
+                <div className="flex w-full max-w-md flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white/85 p-8 text-center shadow-sm">
+                    <p className="text-slate-600">Upload a PDF resume and get structured ATS, content, tone, and skills feedback.</p>
                     <Link to="/upload" className="primary-button w-fit text-xl font-semibold">
                         Upload Resume
                     </Link>

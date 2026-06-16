@@ -47,8 +47,8 @@ const CategoryHeader = ({
     categoryScore: number;
 }) => {
     return (
-        <div className="flex flex-row gap-4 items-center py-2">
-            <p className="text-2xl font-semibold">{title}</p>
+        <div className="flex flex-col gap-2 py-2 sm:flex-row sm:items-center sm:gap-4">
+            <p className="text-xl font-semibold text-slate-900 sm:text-2xl">{title}</p>
             <ScoreBadge score={categoryScore} />
         </div>
     );
@@ -61,7 +61,7 @@ const CategoryContent = ({
 }) => {
     return (
         <div className="flex flex-col gap-4 items-center w-full">
-            <div className="bg-gray-50 w-full rounded-lg px-5 py-4 grid grid-cols-2 gap-4">
+            <div className="grid w-full grid-cols-1 gap-3 rounded-xl bg-slate-50 px-4 py-4 sm:grid-cols-2">
                 {tips.map((tip, index) => (
                     <div className="flex flex-row gap-2 items-center" key={index}>
                         <img
@@ -71,7 +71,7 @@ const CategoryContent = ({
                             alt="score"
                             className="size-5"
                         />
-                        <p className="text-xl text-gray-500 ">{tip.tip}</p>
+                        <p className="text-base text-slate-600 sm:text-lg">{tip.tip}</p>
                     </div>
                 ))}
             </div>
@@ -80,7 +80,7 @@ const CategoryContent = ({
                     <div
                         key={index + tip.tip}
                         className={cn(
-                            "flex flex-col gap-2 rounded-2xl p-4",
+                            "flex flex-col gap-2 rounded-xl p-4",
                             tip.type === "good"
                                 ? "bg-green-50 border border-green-200 text-green-700"
                                 : "bg-yellow-50 border border-yellow-200 text-yellow-700"
@@ -96,7 +96,7 @@ const CategoryContent = ({
                                 alt="score"
                                 className="size-5"
                             />
-                            <p className="text-xl font-semibold">{tip.tip}</p>
+                            <p className="text-lg font-semibold">{tip.tip}</p>
                         </div>
                         <p>{tip.explanation}</p>
                     </div>

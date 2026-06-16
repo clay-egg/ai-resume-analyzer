@@ -19,11 +19,11 @@ const ResumeCard = ({ resume: { id, companyName, jobTitle, feedback, imagePath }
     }, [imagePath]);
 
     return (
-        <Link to={`/resume/${id}`} className="resume-card animate-in fade-in duration-1000">
+        <Link to={`/resume/${id}`} className="resume-card group animate-in fade-in duration-1000">
             <div className="resume-card-header">
-                <div className="flex flex-col gap-2">
-                    {companyName && <h2 className="!text-black font-bold break-words">{companyName}</h2>}
-                    {jobTitle && <h3 className="text-lg break-words text-gray-500">{jobTitle}</h3>}
+                <div className="flex min-w-0 flex-col gap-1">
+                    {companyName && <h2 className="!text-slate-950 font-bold break-words text-2xl">{companyName}</h2>}
+                    {jobTitle && <h3 className="text-base break-words text-slate-500">{jobTitle}</h3>}
                     {!companyName && !jobTitle && <h2 className="!text-black font-bold">Resume</h2>}
                 </div>
                 <div className="flex-shrink-0">
@@ -31,12 +31,12 @@ const ResumeCard = ({ resume: { id, companyName, jobTitle, feedback, imagePath }
                 </div>
             </div>
             {resumeUrl && (
-                <div className="gradient-border animate-in fade-in duration-1000">
-                    <div className="w-full h-full">
+                <div className="gradient-border animate-in fade-in duration-1000 overflow-hidden">
+                    <div className="w-full overflow-hidden rounded-xl bg-slate-100">
                         <img
                             src={resumeUrl}
                             alt="resume"
-                            className="w-full h-[350px] max-sm:h-[200px] object-cover object-top"
+                            className="h-[300px] w-full object-cover object-top transition duration-500 group-hover:scale-[1.02] sm:h-[360px]"
                         />
                     </div>
                 </div>
