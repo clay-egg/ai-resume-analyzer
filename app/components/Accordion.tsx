@@ -55,7 +55,7 @@ export const Accordion: React.FC<AccordionProps> = ({
         <AccordionContext.Provider
             value={{ activeItems, toggleItem, isItemActive }}
         >
-            <div className={`space-y-2 ${className}`}>{children}</div>
+            <div className={`space-y-3 ${className}`}>{children}</div>
         </AccordionContext.Provider>
     );
 };
@@ -72,7 +72,7 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
                                                                 className = "",
                                                             }) => {
     return (
-        <div className={`overflow-hidden border-b border-gray-200 ${className}`}>
+        <div className={`overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${className}`}>
             {children}
         </div>
     );
@@ -125,11 +125,11 @@ export const AccordionHeader: React.FC<AccordionHeaderProps> = ({
             className={`
         w-full px-4 py-3 text-left
         focus:outline-none
-        transition-colors duration-200 flex items-center justify-between cursor-pointer
+        transition-colors duration-200 flex items-center justify-between cursor-pointer hover:bg-slate-50
         ${className}
       `}
         >
-            <div className="flex items-center space-x-3">
+            <div className="flex min-w-0 items-center space-x-3">
                 {iconPosition === "left" && (icon || defaultIcon)}
                 <div className="flex-1">{children}</div>
             </div>
@@ -160,7 +160,7 @@ export const AccordionContent: React.FC<AccordionContentProps> = ({
         ${className}
       `}
         >
-            <div className="px-4 py-3 ">{children}</div>
+            <div className="px-4 pb-4 pt-1">{children}</div>
         </div>
     );
 };

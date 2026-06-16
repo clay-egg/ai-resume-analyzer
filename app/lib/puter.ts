@@ -34,7 +34,8 @@ declare global {
             kv: {
                 get: (key: string) => Promise<string | null>;
                 set: (key: string, value: string) => Promise<boolean>;
-                delete: (key: string) => Promise<boolean>;
+                delete?: (key: string) => Promise<boolean>;
+                del?: (key: string) => Promise<boolean>;
                 list: (pattern: string, returnValues?: boolean) => Promise<string[]>;
                 flush: () => Promise<boolean>;
             };
@@ -327,7 +328,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
         >;
     };
 
-    const feedback = async (path: string, message: string) => {
+    const feedback = async (resumeText: string, message: string) => {
         const puter = getPuter();
         if (!puter) {
             setError("Puter.js not available");
@@ -335,22 +336,8 @@ export const usePuterStore = create<PuterStore>((set, get) => {
         }
 
         return puter.ai.chat(
-            [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "file",
-                            puter_path: path,
-                        },
-                        {
-                            type: "text",
-                            text: message,
-                        },
-                    ],
-                },
-            ],
-            { model: "claude-3-7-sonnet" }
+            `${message}\n\nResume content:\n${resumeText}`,
+            { temperature: 0.2 }
         ) as Promise<AIResponse | undefined>;
     };
 
@@ -387,7 +374,13 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-        return puter.kv.delete(key);
+        if (typeof puter.kv.delete === "function") {
+            return puter.kv.delete(key);
+        }
+        if (typeof puter.kv.del === "function") {
+            return puter.kv.del(key);
+        }
+        return puter.kv.set(key, "__deleted__");
     };
 
     const listKV = async (pattern: string, returnValues?: boolean) => {
