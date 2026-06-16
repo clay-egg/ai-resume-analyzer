@@ -22,6 +22,15 @@ const isFeedback = (value: unknown): value is Feedback => {
         && Array.isArray(feedback.skills.tips);
 }
 
+const getFeedbackError = (value: unknown) => {
+    if (value && typeof value === 'object' && 'error' in value) {
+        const error = (value as { error?: unknown }).error;
+        return typeof error === 'string' ? error : null;
+    }
+
+    return null;
+}
+
 export const meta = () => ([
     { title: 'Resumind | Review' },
     { name: 'description', content: 'Detailed overview of your resume' },
@@ -34,6 +43,7 @@ const Resume = () => {
     const [resumeUrl, setResumeUrl] = useState('');
     const [feedback, setFeedback] = useState<Feedback | null>(null);
     const [feedbackError, setFeedbackError] = useState('');
+    const [recordError, setRecordError] = useState('');
     const navigate = useNavigate();
 
     useEffect(()=>{
@@ -41,40 +51,67 @@ const Resume = () => {
     }, [isLoading])
 
     useEffect(()=> {
+        let resumeObjectUrl = '';
+        let imageObjectUrl = '';
+
         const loadResume = async () => {
             const resume = await kv.get(`resume:${id}`);
 
-            if(!resume) return;
+            if(!resume) {
+                setRecordError('This saved resume could not be found.');
+                return;
+            }
+            if (resume === "__deleted__") {
+                setRecordError('This saved resume has been deleted.');
+                return;
+            }
 
-            const data = JSON.parse(resume);
+            let data: Omit<Resume, 'feedback'> & { feedback: unknown };
+            try {
+                data = JSON.parse(resume) as Resume;
+            } catch {
+                setRecordError('This saved resume record is invalid. Please delete it from the dashboard or upload it again.');
+                return;
+            }
+            const files = await fs.readDir("./");
+            const existingFilePaths = new Set((files || []).map((file) => file.path));
+
+            if (!existingFilePaths.has(data.resumePath) || !existingFilePaths.has(data.imagePath)) {
+                setRecordError('This saved resume points to files that no longer exist. Please delete it from the dashboard or upload it again.');
+                return;
+            }
 
             const resumeBlob = await fs.read(data.resumePath);
             if(!resumeBlob) return;
 
             const pdfBlob = new Blob([resumeBlob], { type: 'application/pdf' });
-            const resumeUrl = URL.createObjectURL(pdfBlob);
-            setResumeUrl(resumeUrl);
+            resumeObjectUrl = URL.createObjectURL(pdfBlob);
+            setResumeUrl(resumeObjectUrl);
 
             const imageBlop = await fs.read(data.imagePath);
             if(!imageBlop) return;
-            const imageUrl = URL.createObjectURL(imageBlop);
-            setImageUrl(imageUrl);
+            imageObjectUrl = URL.createObjectURL(imageBlop);
+            setImageUrl(imageObjectUrl);
 
             if (isFeedback(data.feedback)) {
                 setFeedback(data.feedback);
                 setFeedbackError('');
             } else {
-                const message = typeof data.feedback?.error === 'string'
-                    ? data.feedback.error
-                    : 'The saved AI feedback is incomplete. Please upload and analyze the resume again.';
+                const message = getFeedbackError(data.feedback)
+                    || 'The saved AI feedback is incomplete. Please upload and analyze the resume again.';
                 setFeedback(null);
                 setFeedbackError(message);
             }
-            console.log({resumeUrl, imageUrl, feedback: data.feedback});
+            console.log({resumeUrl: resumeObjectUrl, imageUrl: imageObjectUrl, feedback: data.feedback});
         }
 
         loadResume();
-    }, [id]);
+
+        return () => {
+            if (resumeObjectUrl) URL.revokeObjectURL(resumeObjectUrl);
+            if (imageObjectUrl) URL.revokeObjectURL(imageObjectUrl);
+        };
+    }, [id, fs, kv]);
 
     return (
         <main className="!pt-0 bg-slate-50">
@@ -106,7 +143,11 @@ const Resume = () => {
                         </p>
                         <h2 className="text-3xl !text-slate-950 font-bold sm:text-4xl">Resume Review</h2>
                     </div>
-                    {feedbackError ? (
+                    {recordError ? (
+                        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6">
+                            {recordError}
+                        </div>
+                    ) : feedbackError ? (
                         <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-6">
                             {feedbackError}
                         </div>

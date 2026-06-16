@@ -23,6 +23,15 @@ interface KVItem {
     value: string;
 }
 
+interface PuterKV {
+    get: (key: string) => Promise<string | null>;
+    set: (key: string, value: string) => Promise<boolean>;
+    delete?: (key: string) => Promise<boolean>;
+    del?: (key: string) => Promise<boolean>;
+    list: (pattern: string, returnValues?: boolean) => Promise<string[]>;
+    flush: () => Promise<boolean>;
+}
+
 interface ChatMessageContent {
     type: "file" | "text";
     puter_path?: string;
